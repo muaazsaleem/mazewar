@@ -185,6 +185,8 @@ forward(void)
 		M->ylocIs(Loc(ty));
 		updateView = TRUE;
 	}
+	
+	sendPacketToPlayer(RatId(0));
 }
 
 /* ----------------------------------------------------------------------- */
@@ -464,6 +466,17 @@ void sendPacketToPlayer(RatId ratId)
 		   (Sockaddr) destSocket, sizeof(Sockaddr)) < 0)
 	  { MWError("Sample error") };
 */
+	  MW244BPacket pack;
+        pack.type = 1;
+
+        //.... set other fields in the packet  that you need to set...
+
+        ConvertOutgoing(&pack);
+
+        if (sendto((int)M->theSocket(), &pack, sizeof(pack), 0,
+                    (const sockaddr*)&groupAddr, sizeof(Sockaddr)) < 0)
+          { MWError("Sample error") ;}
+ 
 }
 
 /* ----------------------------------------------------------------------- */
@@ -483,6 +496,18 @@ void processPacket (MWEvent *eventPacket)
         case ...
 	}
 */
+	  MW244BPacket            *pack = eventPacket->eventDetail;
+        printf("%d received\n", pack->type);
+ 
+        /*DataStructureX                *packX;
+
+        switch(pack->type) {
+        case PACKET_TYPE_X:
+          packX = (DataStructureX *) &(pack->body);
+          break;
+        case ...
+        }
+        */
 
 }
 
