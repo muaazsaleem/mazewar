@@ -22,9 +22,9 @@ static Sockaddr         groupAddr;
 
 int main(int argc, char *argv[])
 {
-    Loc x(2);
-    Loc y(3);
-    Direction dir(3);
+    /*Loc x(1);
+    Loc y(5);
+    Direction dir(0);*/
     char *ratName;
 
     signal(SIGHUP, quit);
