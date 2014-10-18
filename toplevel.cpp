@@ -14,6 +14,7 @@
 static bool		updateView;	/* true if update needed */
 MazewarInstance::Ptr M;
 
+
 /* Use this socket address to send packets to the multi-cast group. */
 static Sockaddr         groupAddr;
 #define MAX_OTHER_RATS  (MAX_RATS - 1)
@@ -21,9 +22,9 @@ static Sockaddr         groupAddr;
 
 int main(int argc, char *argv[])
 {
-    Loc x(1);
-    Loc y(5);
-    Direction dir(0);
+    Loc x(2);
+    Loc y(3);
+    Direction dir(3);
     char *ratName;
 
     signal(SIGHUP, quit);
@@ -42,6 +43,10 @@ int main(int argc, char *argv[])
 
     NewPosition(M);
 
+
+    //-----------------
+
+    //-----------------
     /* So you can see what a Rat is supposed to look like, we create
     one rat in the single player mode Mazewar.
     It doesn't move, you can't shoot it, you can just walk around it */
