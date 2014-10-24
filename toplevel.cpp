@@ -42,6 +42,11 @@ int main(int argc, char *argv[])
 
     NewPosition(M);
 
+    
+	RatIndexType ratId(2);
+	SetRatPosition(ratId, x, y, dir);
+	
+
     /* So you can see what a Rat is supposed to look like, we create
     one rat in the single player mode Mazewar.
     It doesn't move, you can't shoot it, you can just walk around it */

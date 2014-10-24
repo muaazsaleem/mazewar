@@ -337,6 +337,7 @@ void DoViewUpdate(void);
 void sendPacketToPlayer(RatId);
 void processPacket(MWEvent *);
 void netInit(void);
+void showMissile(Loc x_loc, Loc y_loc, Direction dir, Loc prev_x, Loc prev_y, bool clear);
 
 
 
