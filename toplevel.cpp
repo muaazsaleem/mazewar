@@ -136,6 +136,7 @@ play(void)
 	}
 }
 
+
 /* ----------------------------------------------------------------------- */
 
 static	Direction	_aboutFace[NDIRECTION] ={SOUTH, NORTH, WEST, EAST};
@@ -318,8 +319,26 @@ void peekStop()
 
 void shoot()
 {
-	M->scoreIs( M->score().value()-1 );
-	UpdateScoreCard(M->myRatId().value());
+	int	ox = MY_X_LOC;
+	int	oy = MY_Y_LOC;
+	int	tx = MY_X_LOC;
+	int	ty = MY_Y_LOC;
+
+	switch(MY_DIR) {
+	case NORTH:	if (!M->maze_[tx+1][ty])	tx++; break;
+	case SOUTH:	if (!M->maze_[tx-1][ty])	tx--; break;
+	case EAST:	if (!M->maze_[tx][ty+1])	ty++; break;
+	case WEST:	if (!M->maze_[tx][ty-1])	ty--; break;
+	default:
+		MWError("bad direction in Forward");
+	}
+	if ((MY_X_LOC != tx) || (MY_Y_LOC != ty)) {
+		showMissile(tx, ty, MY_DIR, ox, oy, false);
+		updateView = TRUE;
+	}
+	
+	
+	
 }
 
 /* ----------------------------------------------------------------------- */
