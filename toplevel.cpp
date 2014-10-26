@@ -12,7 +12,9 @@
 #include "mazewar.h"
 
 static bool		updateView;	/* true if update needed */
+static bool		updateMissle;
 MazewarInstance::Ptr M;
+int Missile::missileCount = 0;
 
 
 /* Use this socket address to send packets to the multi-cast group. */
@@ -333,6 +335,7 @@ void shoot()
 		MWError("bad direction in Forward");
 	}
 	if ((MY_X_LOC != tx) || (MY_Y_LOC != ty)) {
+		Missile missile = Missile(1,tx,ty,MY_DIR);
 		showMissile(tx, ty, MY_DIR, ox, oy, false);
 		updateView = TRUE;
 	}
