@@ -15,6 +15,7 @@ static bool		updateView;	/* true if update needed */
 static bool		updateMissle;
 MazewarInstance::Ptr M;
 int Missile::missileCount = 0;
+Missile* Missile::inflights[MAX_RATS];
 
 
 /* Use this socket address to send packets to the multi-cast group. */
@@ -27,6 +28,7 @@ int main(int argc, char *argv[])
     /*Loc x(1);
     Loc y(5);
     Direction dir(0);*/
+
     char *ratName;
 
     signal(SIGHUP, quit);
@@ -336,9 +338,12 @@ void shoot()
 	}
 	if ((MY_X_LOC != tx) || (MY_Y_LOC != ty)) {
 		Missile missile = Missile(1,tx,ty,MY_DIR);
-		showMissile(tx, ty, MY_DIR, ox, oy, false);
+		Missile::inflights[Missile::missileCount-1] = &missile;
+		showMissile(tx, ty, MY_DIR, ox, oy, true);
 		updateView = TRUE;
 	}
+	
+
 	
 	
 	

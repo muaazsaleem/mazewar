@@ -170,6 +170,9 @@ class Missile{
 public:
 	static Missile *inflights[MAX_RATS];
 	static int missileCount;
+	bool inflight;
+	int	x, y;
+	int dir;
 	Missile(bool _inflight, int _x, int _y, int _dir){
 		inflight = _inflight;
 		x = _x;
@@ -177,10 +180,14 @@ public:
 		dir = _dir;
 		missileCount++;
 	}
-	bool inflight;
-	int	x, y;
-	int dir;
+
+	~Missile(){
+		missileCount--;
+		
+	}
+	
 };
+
 
 typedef	RatAppearance			RatApp_type [MAX_RATS];
 typedef	RatAppearance *			RatLook;
