@@ -185,8 +185,6 @@ public:
 
 	static int* nextMissileXY(int ox, int oy, int dir);
 	bool show();
-	bool removeMe();
-		
 	~Missile(){
 	}
 
