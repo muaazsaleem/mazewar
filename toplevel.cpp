@@ -110,6 +110,7 @@ play(void)
                        
                         case EVENT_TIMEOUT:
                                 //do things that need to be done periodically
+                                manageMissiles();
                                 break;
 
 			case EVENT_INT:
@@ -131,7 +132,7 @@ play(void)
 
 		ratStates();		/* clean house */
 
-		manageMissiles();
+		
 
 		DoViewUpdate();
 
@@ -329,7 +330,7 @@ int* Missile::nextMissileXY(int ox, int oy, int dir){
 		case EAST:	if (!M->maze_[ox][oy+1])	oy++; break;
 		case WEST:	if (!M->maze_[ox][oy-1])	oy--; break;
 		default:
-		MWError("bad direction in Forward");
+		MWError("bad direction in nextMissileXY");
 		}
 	int txy[2] = {ox,oy};
 	return txy;
@@ -350,8 +351,8 @@ bool Missile::show(){
 	}
 	else {
 		this->inflight = 0;
-		Missile::removeMe();
-		return false;
+		Missile::missileCount--;
+			return false;
 	}
 }
 
@@ -472,6 +473,14 @@ void ratStates()
 void manageMissiles()
 {
   /* Leave this up to you. */
+	
+  	list<Missile>::iterator it;
+  	it = Missile::inflights.begin();
+	for (it; it!=Missile::inflights.end(); ++it){
+    	Missile missile = *it;
+    	if(!missile.show()) Missile::inflights.erase(it);
+    }
+  	
 }
 
 /* ----------------------------------------------------------------------- */
