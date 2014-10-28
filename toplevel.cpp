@@ -336,15 +336,12 @@ int* Missile::nextMissileXY(int ox, int oy, int dir){
 	return txy;
 }
 
-bool Missile::removeMe(){
-	missileCount--;
 
-}
 
 bool Missile::show(){
 	int *nxy = nextMissileXY(x, y, dir);
 	int txy[2] = {*(nxy+0),*(nxy+1)};
-	if(txy[0]!= x || txy[1]!= y){
+	if(!(txy[0]== x && txy[1]== y)){
 		showMissile(txy[0], txy[1], dir, x, y, true);
 		updateView = TRUE;
 		return true;
@@ -478,7 +475,9 @@ void manageMissiles()
   	it = Missile::inflights.begin();
 	for (it; it!=Missile::inflights.end(); ++it){
     	Missile missile = *it;
-    	if(!missile.show()) Missile::inflights.erase(it);
+    	if(!missile.show()){
+    		Missile::inflights.erase(it);
+    	}
     }
   	
 }
