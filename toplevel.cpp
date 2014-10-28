@@ -320,7 +320,7 @@ void peekStop()
 }
 
 /* ----------------------------------------------------------------------- */
-
+/*
 int* Missile::nextMissileXY(int ox, int oy, int dir){
 	
 	switch(dir) {
@@ -360,6 +360,30 @@ void shoot()
 		Missile::inflights.push_back(missile);
 		updateView = TRUE;
 	}
+}
+*/
+void shoot()
+{
+	int	ox = MY_X_LOC;
+	int	oy = MY_Y_LOC;
+	int	tx = MY_X_LOC;
+	int	ty = MY_Y_LOC;
+
+	switch(MY_DIR) {
+	case NORTH:	if (!M->maze_[tx+1][ty])	tx++; break;
+	case SOUTH:	if (!M->maze_[tx-1][ty])	tx--; break;
+	case EAST:	if (!M->maze_[tx][ty+1])	ty++; break;
+	case WEST:	if (!M->maze_[tx][ty-1])	ty--; break;
+	default:
+		MWError("bad direction in Forward");
+	}
+	if ((MY_X_LOC != tx) || (MY_Y_LOC != ty)) {
+		Missile missile = Missile(1,tx,ty,MY_DIR);
+		//Missile::inflights[Missile::missileCount-1] = &missile;
+		showMissile(tx, ty, MY_DIR, ox, oy, true);
+		updateView = TRUE;
+	}
+	
 }
 
 /* ----------------------------------------------------------------------- */
