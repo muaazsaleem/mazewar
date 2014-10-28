@@ -320,7 +320,7 @@ void peekStop()
 }
 
 /* ----------------------------------------------------------------------- */
-/*
+
 int* Missile::nextMissileXY(int ox, int oy, int dir){
 	
 	switch(dir) {
@@ -352,7 +352,7 @@ void shoot()
 {	int x = MY_X_LOC;
 	int y = MY_Y_LOC;
 	int *nxy = Missile::nextMissileXY(x, y, MY_DIR);
-	int txy[2] = {*(txy+0),*(txy+1)};
+	int txy[2] = {*(nxy+0),*(nxy+1)};
 	
 	if ((x != txy[0]) || (y != txy[1])) {
 		showMissile(txy[0], txy[1], MY_DIR, x, y, true);
@@ -360,30 +360,6 @@ void shoot()
 		Missile::inflights.push_back(missile);
 		updateView = TRUE;
 	}
-}
-*/
-void shoot()
-{
-	int	ox = MY_X_LOC;
-	int	oy = MY_Y_LOC;
-	int	tx = MY_X_LOC;
-	int	ty = MY_Y_LOC;
-
-	switch(MY_DIR) {
-	case NORTH:	if (!M->maze_[tx+1][ty])	tx++; break;
-	case SOUTH:	if (!M->maze_[tx-1][ty])	tx--; break;
-	case EAST:	if (!M->maze_[tx][ty+1])	ty++; break;
-	case WEST:	if (!M->maze_[tx][ty-1])	ty--; break;
-	default:
-		MWError("bad direction in Forward");
-	}
-	if ((MY_X_LOC != tx) || (MY_Y_LOC != ty)) {
-		Missile missile = Missile(1,tx,ty,MY_DIR);
-		//Missile::inflights[Missile::missileCount-1] = &missile;
-		showMissile(tx, ty, MY_DIR, ox, oy, true);
-		updateView = TRUE;
-	}
-	
 }
 
 /* ----------------------------------------------------------------------- */
