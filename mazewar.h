@@ -168,8 +168,9 @@ public:
 class Missile{
 
 public:
-	static Missile *inflights[MAX_RATS];
+	static List<Missile> inflights;
 	static int missileCount;
+	int id;
 	bool inflight;
 	int	x, y;
 	int dir;
@@ -179,11 +180,18 @@ public:
 		y = _y;
 		dir = _dir;
 		missileCount++;
+		id = missileCount;
 	}
 
 	~Missile(){
 		missileCount--;
-		
+		for (int i = 0; i <= missileCount; ++i)
+		{
+			if(inflights[i] == id){
+					
+			}
+		}
+
 	}
 	
 };

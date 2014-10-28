@@ -14,7 +14,7 @@
 static bool		updateView;	/* true if update needed */
 static bool		updateMissle;
 MazewarInstance::Ptr M;
-int Missile::missileCount = 0;
+int Missile::missileCount = -1;
 Missile* Missile::inflights[MAX_RATS];
 
 
@@ -338,15 +338,10 @@ void shoot()
 	}
 	if ((MY_X_LOC != tx) || (MY_Y_LOC != ty)) {
 		Missile missile = Missile(1,tx,ty,MY_DIR);
-		Missile::inflights[Missile::missileCount-1] = &missile;
+		Missile::inflights[Missile::missileCount] = &missile;
 		showMissile(tx, ty, MY_DIR, ox, oy, true);
 		updateView = TRUE;
 	}
-	
-
-	
-	
-	
 }
 
 /* ----------------------------------------------------------------------- */
