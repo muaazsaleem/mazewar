@@ -164,11 +164,11 @@ public:
 	Direction dir;
 };
 
-
+////////////////////Class I Wrote//////////
 class Missile{
 
 public:
-	static List<Missile> inflights;
+	static list<Missile> inflights;
 	static int missileCount;
 	int id;
 	bool inflight;
@@ -183,20 +183,16 @@ public:
 		id = missileCount;
 	}
 
-	~Missile(){
-		missileCount--;
-		for (int i = 0; i <= missileCount; ++i)
-		{
-			if(inflights[i] == id){
-					
-			}
-		}
+	static int* nextMissileXY(int ox, int oy, int dir);
+	bool show();
 
+		
+	~Missile(){
 	}
-	
+
 };
 
-
+///////////////////////////////////////////////
 typedef	RatAppearance			RatApp_type [MAX_RATS];
 typedef	RatAppearance *			RatLook;
 

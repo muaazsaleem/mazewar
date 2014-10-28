@@ -12,10 +12,10 @@
 #include "mazewar.h"
 
 static bool		updateView;	/* true if update needed */
-static bool		updateMissle;
+static bool		updateMissile;
 MazewarInstance::Ptr M;
 int Missile::missileCount = -1;
-Missile* Missile::inflights[MAX_RATS];
+list<Missile> Missile::inflights;
 
 
 /* Use this socket address to send packets to the multi-cast group. */
@@ -321,25 +321,43 @@ void peekStop()
 
 /* ----------------------------------------------------------------------- */
 
-void shoot()
-{
-	int	ox = MY_X_LOC;
-	int	oy = MY_Y_LOC;
-	int	tx = MY_X_LOC;
-	int	ty = MY_Y_LOC;
-
+int* Missile::nextMissileXY(int ox, int oy, int dir){
+	
 	switch(MY_DIR) {
-	case NORTH:	if (!M->maze_[tx+1][ty])	tx++; break;
-	case SOUTH:	if (!M->maze_[tx-1][ty])	tx--; break;
-	case EAST:	if (!M->maze_[tx][ty+1])	ty++; break;
-	case WEST:	if (!M->maze_[tx][ty-1])	ty--; break;
-	default:
+		case NORTH:	if (!M->maze_[ox+1][oy])	ox++; break;
+		case SOUTH:	if (!M->maze_[ox-1][oy])	ox--; break;
+		case EAST:	if (!M->maze_[ox][oy+1])	oy++; break;
+		case WEST:	if (!M->maze_[ox][oy-1])	oy--; break;
+		default:
 		MWError("bad direction in Forward");
+		}
+	int txy[2] = {ox,oy};
+	return txy;
+}
+
+bool Missile::show(){
+	int *nxy = nextMissileXY(x, y, dir);
+	int txy[2] = {*(nxy+0),*(nxy+1)};
+	if(txy[0]!=x || txy[1]!=y){
+		showMissile(txy[0], txy[1], dir, x, y, true);
+		updateView = TRUE;
+		return true;
 	}
-	if ((MY_X_LOC != tx) || (MY_Y_LOC != ty)) {
-		Missile missile = Missile(1,tx,ty,MY_DIR);
-		Missile::inflights[Missile::missileCount] = &missile;
-		showMissile(tx, ty, MY_DIR, ox, oy, true);
+	else 
+		return false;
+		
+}
+
+void shoot()
+{	int x = MY_X_LOC;
+	int y = MY_Y_LOC;
+	int *nxy = Missile::nextMissileXY(x, y, MY_DIR);
+	int txy[2] = {*(txy+0),*(txy+1)};
+	
+	if ((x != txy[0]) || (y != txy[1])) {
+		showMissile(txy[0], txy[1], MY_DIR, x, y, true);
+		Missile missile = Missile(1,txy[0],txy[1],MY_DIR);
+		Missile::inflights.push_back(missile);
 		updateView = TRUE;
 	}
 }
