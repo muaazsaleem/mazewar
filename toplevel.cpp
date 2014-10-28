@@ -335,6 +335,11 @@ int* Missile::nextMissileXY(int ox, int oy, int dir){
 	return txy;
 }
 
+bool Missile::removeMe(){
+	missileCount--;
+
+}
+
 bool Missile::show(){
 	int *nxy = nextMissileXY(x, y, dir);
 	int txy[2] = {*(nxy+0),*(nxy+1)};
@@ -343,9 +348,11 @@ bool Missile::show(){
 		updateView = TRUE;
 		return true;
 	}
-	else 
+	else {
+		this->inflight = 0;
+		Missile::removeMe();
 		return false;
-		
+	}
 }
 
 void shoot()
