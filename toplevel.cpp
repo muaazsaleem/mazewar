@@ -14,7 +14,7 @@
 static bool		updateView;	/* true if update needed */
 static bool		updateMissile;
 MazewarInstance::Ptr M;
-int Missile::missileCount = -1;
+int Missile::missileCount = 0;
 list<Missile> Missile::inflights;
 
 
@@ -110,7 +110,7 @@ play(void)
                        
                         case EVENT_TIMEOUT:
                                 //do things that need to be done periodically
-                                manageMissiles();
+                                if (Missile::missileCount>0) manageMissiles();
                                 break;
 
 			case EVENT_INT:
@@ -323,7 +323,8 @@ void peekStop()
 /* ----------------------------------------------------------------------- */
 
 int* Missile::nextMissileXY(int ox, int oy, int dir){
-	
+	cout<<"nextMissileXY called with\nox: "<<ox;
+	cout<<"oy: "<<oy<<endl;	
 	switch(dir) {
 		case NORTH:	if (!M->maze_[ox+1][oy])	ox++; break;
 		case SOUTH:	if (!M->maze_[ox-1][oy])	ox--; break;
@@ -332,25 +333,50 @@ int* Missile::nextMissileXY(int ox, int oy, int dir){
 		default:
 		MWError("bad direction in nextMissileXY");
 		}
+	cout<<"ox: "<<ox;
+	cout<<"oy: "<<oy<<endl;	
 	int txy[2] = {ox,oy};
+	cout<<" tx: "<<txy[0];
+	cout<<" ty: "<<txy[1]<<endl;
+	ox++;
+	cout<<" tx: "<<txy[0];
+	cout<<" ty: "<<txy[1]<<endl;
 	return txy;
 }
 
 
 
 bool Missile::show(){
+	cout<<"Missile::shown called"<<endl;
+	cout<<"x: "<<this->x<<" y: "<<this->y<<endl;
+	
 	int *nxy = nextMissileXY(x, y, dir);
-	int txy[2] = {*(nxy+0),*(nxy+1)};
+	//cout<<"*nx: "<<*(nxy+0)<<" *ny: "<<*(nxy+1)<<endl;
+	int txy[2] = {nxy[0],nxy[1]};
+		
+	//this->x = *(nxy+0); this->y = *(nxy+1);
+	//cout<<"x by *nx: "<<this->x<<" y by *ny: "<<this->y<<endl;
 	if(!(txy[0]== x && txy[1]== y)){
 		showMissile(txy[0], txy[1], dir, x, y, true);
+		this->x = txy[0]; this->y = txy[1];
+
+		cout<<"Missile shown calling updateView"<<endl;
+		cout<<"new x:"<<this->x<<" new y:"<<this->y<<endl;
+		cout<<"nx:"<<txy[0]<<" ny:"<<txy[1]<<endl;
+
 		updateView = TRUE;
-		return true;
+		
+		return this->show();
+
 	}
 	else {
 		this->inflight = 0;
 		Missile::missileCount--;
+		cout<<"Missile deleted calling updateView"<<endl;
+		updateView = TRUE;
 			return false;
 	}
+	
 }
 
 void shoot()
@@ -358,12 +384,18 @@ void shoot()
 	int y = MY_Y_LOC;
 	int *nxy = Missile::nextMissileXY(x, y, MY_DIR);
 	int txy[2] = {*(nxy+0),*(nxy+1)};
-	
+		
 	if ((x != txy[0]) || (y != txy[1])) {
 		showMissile(txy[0], txy[1], MY_DIR, x, y, true);
 		Missile missile = Missile(1,txy[0],txy[1],MY_DIR);
 		Missile::inflights.push_back(missile);
 		updateView = TRUE;
+		cout<<"I am shoot x:"<<x<<" y:"<<y<<" nx:";
+		cout<<txy[0]<<" ny:"<<txy[1]<<endl;
+		
+
+
+
 	}
 }
 
@@ -475,11 +507,13 @@ void manageMissiles()
   	it = Missile::inflights.begin();
 	for (it; it!=Missile::inflights.end(); ++it){
     	Missile missile = *it;
-    	if(!missile.show()){
-    		Missile::inflights.erase(it);
-    	}
-    }
-  	
+    		cout<<"id: "<<missile.id<<endl;
+    		cout<<"inflight: "<<missile.inflight<<endl;
+    		cout<<"x: "<<missile.x<<endl;
+    		cout<<"y: "<<missile.y<<endl;
+    		missile.show();
+	    
+	    }
 }
 
 /* ----------------------------------------------------------------------- */
