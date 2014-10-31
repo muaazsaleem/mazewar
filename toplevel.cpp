@@ -392,7 +392,10 @@ bool Missile::show(){
 }
 
 void shoot()
-{	int x = MY_X_LOC;
+{	
+	M->scoreIs( M->score().value()-1 );
+	UpdateScoreCard(M->myRatId().value());
+	int x = MY_X_LOC;
 	int y = MY_Y_LOC;
 	int *nxy = Missile::nextMissileXY(x, y, MY_DIR);
 	int txy[2] = {*(nxy+0),*(nxy+1)};
