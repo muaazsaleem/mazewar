@@ -22,7 +22,7 @@ list<Missile> Missile::inflights;
 static Sockaddr         groupAddr;
 #define MAX_OTHER_RATS  (MAX_RATS - 1)
 
-
+int im = 0;
 int main(int argc, char *argv[])
 {
     /*Loc x(1);
@@ -110,8 +110,8 @@ play(void)
                        
                         case EVENT_TIMEOUT:
                                 //do things that need to be done periodically
-                                if (Missile::missileCount>0) manageMissiles();
-                                break;
+                               	manageMissiles();
+                               	break; 
 
 			case EVENT_INT:
 				quit(0);
@@ -356,23 +356,35 @@ bool Missile::show(){
 		
 	//this->x = *(nxy+0); this->y = *(nxy+1);
 	//cout<<"x by *nx: "<<this->x<<" y by *ny: "<<this->y<<endl;
-	if(!(txy[0]== x && txy[1]== y)){
+	if((txy[0]!= x || txy[1]!= y)){
 		showMissile(txy[0], txy[1], dir, x, y, true);
 		this->x = txy[0]; this->y = txy[1];
 
 		cout<<"Missile shown calling updateView"<<endl;
 		cout<<"new x:"<<this->x<<" new y:"<<this->y<<endl;
 		cout<<"nx:"<<txy[0]<<" ny:"<<txy[1]<<endl;
-
-		updateView = TRUE;
 		
-		return this->show();
+  		list<Missile>::iterator it;
+  		it = Missile::inflights.begin();
+		for (int i=1; i<=Missile::missileCount; ++i){
+    		Missile missile = *it;
+    		if(missile.id==this->id){
+    			Missile::inflights.erase(it);
+    			Missile::inflights.push_back(*this);
+    			updateView = TRUE;
+    			++it;
+    		}
+		}
+		updateView = TRUE;
+		return true;
 
 	}
 	else {
 		this->inflight = 0;
 		Missile::missileCount--;
+		clearSquare(txy[0], txy[1]);
 		cout<<"Missile deleted calling updateView"<<endl;
+		
 		updateView = TRUE;
 			return false;
 	}
@@ -387,12 +399,12 @@ void shoot()
 		
 	if ((x != txy[0]) || (y != txy[1])) {
 		showMissile(txy[0], txy[1], MY_DIR, x, y, true);
-		Missile missile = Missile(1,txy[0],txy[1],MY_DIR);
+		Missile missile = Missile(Missile::missileCount+1,1,txy[0],txy[1],MY_DIR);
 		Missile::inflights.push_back(missile);
 		updateView = TRUE;
 		cout<<"I am shoot x:"<<x<<" y:"<<y<<" nx:";
 		cout<<txy[0]<<" ny:"<<txy[1]<<endl;
-		
+		updateView = TRUE;
 
 
 
@@ -505,15 +517,21 @@ void manageMissiles()
 	
   	list<Missile>::iterator it;
   	it = Missile::inflights.begin();
-	for (it; it!=Missile::inflights.end(); ++it){
+	for (int i=1; i<=Missile::missileCount; ++i){
     	Missile missile = *it;
+    		cout<<"manageMISSILE called: "<<i<<endl;
     		cout<<"id: "<<missile.id<<endl;
     		cout<<"inflight: "<<missile.inflight<<endl;
     		cout<<"x: "<<missile.x<<endl;
     		cout<<"y: "<<missile.y<<endl;
-    		missile.show();
-	    
-	    }
+    		
+    		
+    		if(!missile.show()){
+    			Missile::inflights.erase(it);
+    			updateView = TRUE;
+    			++it;
+    		}
+	}
 }
 
 /* ----------------------------------------------------------------------- */

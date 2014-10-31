@@ -174,7 +174,8 @@ public:
 	bool inflight;
 	int	x, y;
 	int dir;
-	Missile(bool _inflight, int _x, int _y, int _dir){
+	Missile(int _id, bool _inflight, int _x, int _y, int _dir){
+		id = _id;
 		inflight = _inflight;
 		x = _x;
 		y = _y;
