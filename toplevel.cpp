@@ -25,9 +25,9 @@ static Sockaddr         groupAddr;
 int im = 0;
 int main(int argc, char *argv[])
 {
-    /*Loc x(1);
+    Loc x(1);
     Loc y(5);
-    Direction dir(0);*/
+    Direction dir(0);
 
     char *ratName;
 
@@ -590,7 +590,7 @@ void sendPacketToPlayer(RatId ratId)
 
         if (sendto((int)M->theSocket(), &pack, sizeof(pack), 0,
                     (const sockaddr*)&groupAddr, sizeof(Sockaddr)) < 0)
-          { MWError("Sample error") ;}
+          { MWError("Sample error");}
  
 }
 
