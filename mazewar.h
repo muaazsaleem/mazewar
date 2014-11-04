@@ -166,6 +166,8 @@ public:
 
 class RatRat{
 public:
+	static list<RatRat> allTheRats;
+	static int rat_count;
 	int id;
 	char* name;
 	int x;
@@ -173,7 +175,15 @@ public:
 	int heart_beat;
 	RatRat(int id, char* name){
 		this->id = id;
-		strncpy(this->name, name, NAMESIZE);
+		cout<<"New Rat: ";
+		for (int j = 0; j < NAMESIZE; ++j)
+    	{	
+    		
+    		this->name[j] = name[j];
+    		cout<<this->name[j];
+    	}
+    	cout<<endl;
+    	rat_count++;
 	}
 };
 

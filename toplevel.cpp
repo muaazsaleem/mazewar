@@ -18,6 +18,8 @@ int Missile::missileCount = 0;
 list<Missile> Missile::inflights;
 int Packet::packet_count = 0;
 list<Packet> Packet::packets_to_send;
+list<RatRat> RatRat::allTheRats;
+int RatRat::rat_count=0;
 
 
 /* Use this socket address to send packets to the multi-cast group. */
@@ -660,16 +662,20 @@ void processPacket (MWEvent *eventPacket)
     	case 'i':
     		int sender_id = pack->body[0];
     		cout<<"My Rat Id: "<<M->myRatId().value()<<endl;
-    		if(sender_id != M->myRatId().value()){
+    		//if(sender_id != M->myRatId().value()){
     			
     			cout<<"id: "<<sender_id<<" received"<<endl;
+    			char sender_name[NAMESIZE];
     			cout<<"name: ";
     			for (int j = 0; j < NAMESIZE; ++j)
-		    	{
-		    		cout<<(char)pack->body[1+j];
+		    	{	
+		    		sender_name[j] = (char)pack->body[1+j];
+		    		cout<<sender_name[j];
 		    	}
 		    	cout<<" received"<<endl;
-    		}
+		    	RatRat newRat(sender_id,sender_name);
+		    	RatRat::allTheRats.push_back(newRat);
+    		//}
     		
     }
     
