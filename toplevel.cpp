@@ -19,7 +19,7 @@ list<Missile> Missile::inflights;
 int Packet::packet_count = 0;
 list<Packet> Packet::packets_to_send;
 list<RatRat> RatRat::allTheRats;
-int RatRat::rat_count=0;
+int RatRat::rat_count = 0;
 
 
 /* Use this socket address to send packets to the multi-cast group. */
@@ -568,6 +568,7 @@ void DoViewUpdate()
  */
 
 bool Packet::create_packet(unsigned char type){
+	cout<<"Create Packet Called>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 	Packet packet;
 	switch(type){
 		case 'i':
@@ -587,6 +588,7 @@ bool Packet::create_packet(unsigned char type){
 		  //.... set other fields in the packet  that you need to set...
 	}
 	packets_to_send.push_back(packet);
+	packet.add_to_list();
 	return true;
 }
 
@@ -611,9 +613,11 @@ void sendPacketToPlayers()
 */
 	list<Packet>::iterator it;
   	it = Packet::packets_to_send.begin();
+
 	for (int i=1; i<=Packet::packet_count; ++i){
     	Packet pack = *it;
     	cout<<"sendPacketToPlayers called: "<<i<<endl;
+    	cout<<"Packet Count: "<<Packet::packet_count<<endl;
     	cout<<"type: "<<pack.type<<endl;
     	cout<<"id: "<<pack.body[0]<<endl;
     	cout<<"name: "<<(char)pack.body[1]<<endl;
@@ -623,8 +627,8 @@ void sendPacketToPlayers()
                     (const sockaddr*)&groupAddr, sizeof(Sockaddr)) < 0)
           { MWError("Sample error");}
       	
-      	Packet::packets_to_send.erase(it);
-      	Packet::packet_count--;
+      	//Packet::packets_to_send.erase(it);
+      	//Packet::packet_count--;
       	
     		
     	++it;
@@ -656,29 +660,30 @@ void processPacket (MWEvent *eventPacket)
 	}
 */
 	Packet *pack = eventPacket->eventDetail;
-    cout<<"type: "<<pack->type<<" received"<<endl;
-    
-    switch(pack->type){
-    	case 'i':
-    		int sender_id = pack->body[0];
-    		cout<<"My Rat Id: "<<M->myRatId().value()<<endl;
-    		//if(sender_id != M->myRatId().value()){
-    			
-    			cout<<"id: "<<sender_id<<" received"<<endl;
-    			char sender_name[NAMESIZE];
-    			cout<<"name: ";
-    			for (int j = 0; j < NAMESIZE; ++j)
-		    	{	
-		    		sender_name[j] = (char)pack->body[1+j];
-		    		cout<<sender_name[j];
-		    	}
-		    	cout<<" received"<<endl;
-		    	RatRat newRat(sender_id,sender_name);
-		    	RatRat::allTheRats.push_back(newRat);
-    		//}
-    		
+    //cout<<"type: "<<pack->type<<" received"<<endl;
+    int sender_id = pack->body[0];
+    if(sender_id != M->myRatId().value()){
+	    switch(pack->type){
+	    	case 'i':
+	    		
+	    		//cout<<"My Rat Id: "<<M->myRatId().value()<<endl;
+	    		
+	    			
+	    			cout<<"id: "<<sender_id<<" received"<<endl;
+	    			char sender_name[NAMESIZE];
+	    			cout<<"name: ";
+	    			for (int j = 0; j < NAMESIZE; ++j)
+			    	{	
+			    		sender_name[j] = (char)pack->body[1+j];
+			    		cout<<sender_name[j];
+			    	}
+			    	cout<<" received"<<endl;
+			    	RatRat newRat(sender_id,sender_name);
+			    	RatRat::allTheRats.push_back(newRat);
+	    		
+	    		
+	    }
     }
-    
  
         /*DataStructureX                *packX;
 

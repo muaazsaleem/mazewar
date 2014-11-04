@@ -324,7 +324,44 @@ class Packet{
 		unsigned char type;	//type i = Identifying
 		u_long	body[256];
 		Packet(){
+			
+		}
+		bool match_in_list(Packet packet){
+			
+			for (int i=1; i<=Packet::packet_count; ++i){
+		    	list<Packet>::iterator it;
+  				it = Packet::packets_to_send.begin();
+		    	Packet pack = *it;
+		    	
+		    	if(pack.type == packet.type){
+		    		return true;
+		    	}
+		    	
+		    }
+		    return false;
+		}
+		bool add_to_list(){
+			if(match_in_list(*this)){			
+				this->remove_from_list();
+			}
+			packets_to_send.push_back(*this);
 			packet_count++;
+			return true;
+		}
+		
+		bool remove_from_list(){
+			if(match_in_list(*this)){
+				for (int i=1; i<=Packet::packet_count; ++i){
+			    	list<Packet>::iterator it;
+	  				it = Packet::packets_to_send.begin();
+			    	Packet pack = *it;
+			    	
+			    	if(pack.type == this->type){
+			    		packets_to_send.erase(it);
+			    	}
+			    	
+		    	}
+			}
 		}
 		static bool create_packet(unsigned char type);
 };
