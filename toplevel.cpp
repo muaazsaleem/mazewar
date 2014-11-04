@@ -16,13 +16,15 @@ static bool		updateMissile;
 MazewarInstance::Ptr M;
 int Missile::missileCount = 0;
 list<Missile> Missile::inflights;
+int Packet::packet_count = 0;
+list<Packet> Packet::packets_to_send;
 
 
 /* Use this socket address to send packets to the multi-cast group. */
 static Sockaddr         groupAddr;
 #define MAX_OTHER_RATS  (MAX_RATS - 1)
 
-int im = 0;
+
 int main(int argc, char *argv[])
 {
     Loc x(1);
@@ -46,7 +48,7 @@ int main(int argc, char *argv[])
     MazeInit(argc, argv);
 
     NewPosition(M);
-
+   // sendPacketToPlayers(RatId(1));
 
     //-----------------
 
@@ -67,7 +69,7 @@ void
 play(void)
 {
 	MWEvent		event;
-	MW244BPacket	incoming;
+	Packet	incoming;
 
 	event.eventDetail = &incoming;
 
@@ -111,6 +113,7 @@ play(void)
                         case EVENT_TIMEOUT:
                                 //do things that need to be done periodically
                                	manageMissiles();
+                               	if(Packet::packets_to_send.size()>0) sendPacketToPlayers();
                                	break; 
 
 			case EVENT_INT:
@@ -197,7 +200,7 @@ forward(void)
 		updateView = TRUE;
 	}
 	
-	sendPacketToPlayer(RatId(0));
+	//sendPacketToPlayers(RatId(0));
 }
 
 /* ----------------------------------------------------------------------- */
@@ -491,14 +494,14 @@ char *GetRatName(RatIndexType ratId)
 /* ----------------------------------------------------------------------- */
 
 /* This is just for the sample version, rewrite your own if necessary */
-void ConvertIncoming(MW244BPacket *p)
+void ConvertIncoming(Packet *p)
 {
 }
 
 /* ----------------------------------------------------------------------- */
 
 /* This is just for the sample version, rewrite your own if necessary */
-void ConvertOutgoing(MW244BPacket *p)
+void ConvertOutgoing(Packet *p)
 {
 }
 
@@ -562,10 +565,33 @@ void DoViewUpdate()
  * before any call to sendto.
  */
 
-void sendPacketToPlayer(RatId ratId)
+bool Packet::create_packet(unsigned char type){
+	Packet packet;
+	switch(type){
+		case 'i':
+				packet.type = 'i';
+				packet.body[0]= 0; 
+				cout<<"Name Array: ";
+				for (int j = 0; j < NAMESIZE; ++j)
+				{
+					packet.body[1+j]=M->myName_[j];
+					cout<<(char)packet.body[1+j];
+				}
+				cout<<endl;
+				cout<<"First Character: "<<(char)packet.body[1]<<endl;
+				cout<<"Last Character: "<<(char)packet.body[NAMESIZE-1]<<endl;
+				break;
+
+		  //.... set other fields in the packet  that you need to set...
+	}
+	packets_to_send.push_back(packet);
+	return true;
+}
+
+void sendPacketToPlayers()
 {
 /*
-	MW244BPacket pack;
+	Packet pack;
 	DataStructureX *packX;
 
 	pack.type = PACKET_TYPE_X;
@@ -581,16 +607,32 @@ void sendPacketToPlayer(RatId ratId)
 		   (Sockaddr) destSocket, sizeof(Sockaddr)) < 0)
 	  { MWError("Sample error") };
 */
-	  MW244BPacket pack;
-        pack.type = 1;
-
-        //.... set other fields in the packet  that you need to set...
-
-        ConvertOutgoing(&pack);
+	list<Packet>::iterator it;
+  	it = Packet::packets_to_send.begin();
+	for (int i=1; i<=Packet::packet_count; ++i){
+    	Packet pack = *it;
+    	cout<<"sendPacketToPlayers called: "<<i<<endl;
+    	cout<<"type: "<<pack.type<<endl;
+    	cout<<"id: "<<pack.body[0]<<endl;
+    	cout<<"name: "<<(char)pack.body[1]<<endl;
+    	ConvertOutgoing(&pack);
 
         if (sendto((int)M->theSocket(), &pack, sizeof(pack), 0,
                     (const sockaddr*)&groupAddr, sizeof(Sockaddr)) < 0)
           { MWError("Sample error");}
+      	
+      	Packet::packets_to_send.erase(it);
+      	Packet::packet_count--;
+      	
+    		
+    	++it;
+    }
+	
+
+	 
+      
+
+       
  
 }
 
@@ -601,7 +643,7 @@ void sendPacketToPlayer(RatId ratId)
 void processPacket (MWEvent *eventPacket)
 {
 /*
-	MW244BPacket		*pack = eventPacket->eventDetail;
+	Packet		*pack = eventPacket->eventDetail;
 	DataStructureX		*packX;
 
 	switch(pack->type) {
@@ -611,8 +653,26 @@ void processPacket (MWEvent *eventPacket)
         case ...
 	}
 */
-	  MW244BPacket            *pack = eventPacket->eventDetail;
-        printf("%d received\n", pack->type);
+	Packet *pack = eventPacket->eventDetail;
+    cout<<"type: "<<pack->type<<" received"<<endl;
+    
+    switch(pack->type){
+    	case 'i':
+    		int sender_id = pack->body[0];
+    		cout<<"My Rat Id: "<<M->myRatId().value()<<endl;
+    		if(sender_id != M->myRatId().value()){
+    			
+    			cout<<"id: "<<sender_id<<" received"<<endl;
+    			cout<<"name: ";
+    			for (int j = 0; j < NAMESIZE; ++j)
+		    	{
+		    		cout<<(char)pack->body[1+j];
+		    	}
+		    	cout<<" received"<<endl;
+    		}
+    		
+    }
+    
  
         /*DataStructureX                *packX;
 
@@ -707,12 +767,16 @@ netInit()
 	M->scoreIs(0);
 	SetMyRatIndexType(0);
 
+
 	/* Get the multi-cast address ready to use in SendData()
            calls. */
 	memcpy(&groupAddr, &nullAddr, sizeof(Sockaddr));
 	groupAddr.sin_addr.s_addr = htonl(MAZEGROUP);
+	Packet::create_packet('i');
 
 }
+
+
 
 
 /* ----------------------------------------------------------------------- */

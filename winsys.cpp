@@ -645,7 +645,7 @@ NextEvent(MWEvent *event, int socket)
 
 	  event->eventType = EVENT_NETWORK;
 	  cc = recvfrom(socket, (char*)event->eventDetail,
-			sizeof(MW244BPacket), 0,
+			sizeof(Packet), 0,
 		        (struct sockaddr *)&event->eventSource,
 			&fromLen);
 	  if (cc <= 0)

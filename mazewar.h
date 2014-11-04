@@ -164,6 +164,19 @@ public:
 	Direction dir;
 };
 
+class RatRat{
+public:
+	int id;
+	char* name;
+	int x;
+	int y;
+	int heart_beat;
+	RatRat(int id, char* name){
+		this->id = id;
+		strncpy(this->name, name, NAMESIZE);
+	}
+};
+
 ////////////////////Class I Wrote//////////
 class Missile{
 
@@ -293,14 +306,25 @@ extern MazewarInstance::Ptr M;
 
 extern unsigned short	ratBits[];
 /* replace this with appropriate definition of your own */
-typedef	struct {
-	unsigned char type;
-	u_long	body[256];
-}					MW244BPacket;
+//////////Another Class I wrote///////////////////
+class Packet{
+	public:
+		static list<Packet> packets_to_send;
+		static int packet_count;
+		unsigned char type;	//type i = Identifying
+		u_long	body[256];
+		Packet(){
+			packet_count++;
+		}
+		static bool create_packet(unsigned char type);
+};
+//////////////////////////////////////////////////////
+
+
 
 typedef	struct {
 	short		eventType;
-	MW244BPacket	*eventDetail;	/* for incoming data */
+	Packet	*eventDetail;	/* for incoming data */
 	Sockaddr	eventSource;
 }					MWEvent;
 
@@ -357,12 +381,12 @@ void NewPosition(MazewarInstance::Ptr M);
 void MWError(char *);
 Score GetRatScore(RatIndexType);
 char  *GetRatName(RatIndexType);
-void ConvertIncoming(MW244BPacket *);
-void ConvertOutgoing(MW244BPacket *);
+void ConvertIncoming(Packet *);
+void ConvertOutgoing(Packet *);
 void ratState(void);
 void manageMissiles(void);
 void DoViewUpdate(void);
-void sendPacketToPlayer(RatId);
+void sendPacketToPlayers();
 void processPacket(MWEvent *);
 void netInit(void);
 void showMissile(Loc x_loc, Loc y_loc, Direction dir, Loc prev_x, Loc prev_y, bool clear);
