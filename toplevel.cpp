@@ -666,7 +666,7 @@ void processPacket (MWEvent *eventPacket)
 	Packet *pack = eventPacket->eventDetail;
     //cout<<"type: "<<pack->type<<" received"<<endl;
     int sender_id = pack->body[0];
-    if(sender_id != M->myRatId().value()){
+    if(sender_id != RatRat::my_id){
 	    switch(pack->type){
 	    	case 'i':
 	    		
@@ -674,15 +674,16 @@ void processPacket (MWEvent *eventPacket)
 	    		
 	    			
 	    			cout<<"id: "<<sender_id<<" received"<<endl;
-	    			char sender_name[NAMESIZE];
+	    			char sender_name[2];
 	    			cout<<"name: ";
-	    			for (int j = 0; j < NAMESIZE; ++j)
+	    			for (int j = 0; j < 2; ++j)
 			    	{	
 			    		sender_name[j] = (char)pack->body[1+j];
 			    		cout<<sender_name[j];
 			    	}
 			    	cout<<" received"<<endl;
 			    	RatRat newRat(sender_id,sender_name);
+			    	cout<<"newRat made\n";
 			    	if(!newRat.match_in_list(newRat)){
 			    		newRat.add_to_list();
 			    		NewScoreCard();
@@ -792,7 +793,6 @@ netInit()
 	
 
 	RatRat::my_id = getpid()%7; 
-	cout<<"Sup my id be: "<<RatRat::my_id<<endl;
 	Packet::create_packet('i');
 	
 

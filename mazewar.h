@@ -176,9 +176,9 @@ public:
 	int y;
 	int heart_beat;
 	RatRat(int id, char* name){
-		this->id = id;
+		//this->id = id;
 		cout<<"New Rat: ";
-		for (int j = 0; j < NAMESIZE; ++j)
+		for (int j = 0; j < 2; ++j)
     	{	
     		
     		this->name[j] = name[j];
