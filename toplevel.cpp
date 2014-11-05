@@ -682,7 +682,8 @@ void processPacket (MWEvent *eventPacket)
 			    		cout<<sender_name[j];
 			    	}
 			    	cout<<" received"<<endl;
-			    	RatRat newRat(sender_id,sender_name);
+
+			    	RatRat newRat(sender_id, sender_name);//,sender_name);
 			    	cout<<"newRat made\n";
 			    	if(!newRat.match_in_list(newRat)){
 			    		newRat.add_to_list();

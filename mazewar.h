@@ -167,25 +167,32 @@ public:
 class RatRat{
 public:
 	static list<RatRat> all_the_rats;
-	static int rat_count;
+	static int rat_count;/// a local variable for list<RatRat> all_the_rates.size
 	static int my_id;
 	int id;
 
-	char* name;
+	char name[2];
 	int x;
 	int y;
 	int heart_beat;
 	RatRat(int id, char* name){
-		//this->id = id;
+		this->id = id;
 		cout<<"New Rat: ";
-		for (int j = 0; j < 2; ++j)
+		cout<<"^^^Name: "<<name[0]<<name[1]<<" THIS"<<endl;
+		cout<<"$$$$THIS NAME ";
+		this->name[0] = name[0];
+		cout<<this->name[0];
+		this->name[1] = name[1];
+		cout<<this->name[1]<<" THIS"<<endl;
+		
+		/*for (int j = 0; j < 2; ++j)
     	{	
     		
     		this->name[j] = name[j];
     		cout<<this->name[j];
     	}
-    	cout<<endl;
-    	rat_count++;
+    	cout<<endl;*/
+    	
 	}
 	bool match_in_list(RatRat rat){
 			
