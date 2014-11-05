@@ -90,14 +90,17 @@ play(void)
 
 			case EVENT_S:
 				leftTurn();
+				Packet::create_packet('p');
 				break;
 
 			case EVENT_D:
 				forward();
+				Packet::create_packet('p');
 				break;
 
 			case EVENT_F:
 				rightTurn();
+				Packet::create_packet('p');
 				break;
 
 
@@ -121,6 +124,11 @@ play(void)
                                 //do things that need to be done periodically
                                	manageMissiles();
                                	if(Packet::packets_to_send.size()>0) sendPacketToPlayers();
+/*
+                               	//UpdateScoreCard(0);
+                               for (list<RatRat>::iterator it = RatRat::all_the_rats.begin(); it != RatRat::all_the_rats.end(); ++it)
+		    						UpdateScoreCard(it->id);
+		    					*/
                                	break; 
 
 			case EVENT_INT:
@@ -483,9 +491,16 @@ void MWError(char *s)
 /* This is just for the sample version, rewrite your own */
 Score GetRatScore(RatIndexType ratId)
 {
-  if (ratId.value() == 	M->myRatId().value())
+  /*if (ratId.value() == 	M->myRatId().value())
     { return(M->score()); }
-  else { return (0); }
+  else { return (0); }*/
+    if (RatRat::match_in_list(ratId.value()))
+  {
+  	RatRat rat = RatRat::getRat(ratId.value());
+  	return rat.score;
+  }
+  
+  return M->score();
 }
 
 /* ----------------------------------------------------------------------- */
@@ -494,9 +509,26 @@ Score GetRatScore(RatIndexType ratId)
 char *GetRatName(RatIndexType ratId)
 {
   if (ratId.value() ==	M->myRatId().value())
-    { return(M->myName_); }
-  else { return ("Dummy"); }
+    return(M->myName_);
+  else if (RatRat::match_in_list(ratId.value())) {
+  	RatRat rat = RatRat::getRat(ratId.value());
+  	return rat.name;
+  }
+
+  return ("Dummy");
 }
+
+/*char *GetRatName(int rat_id)
+{
+  if (RatRat::match_in_list(rat_id))
+  {
+  	RatRat rat = RatRat::getRat(rat_id);
+  	return rat.name;
+  }
+  else{
+  	return "Dummy";
+  }
+}*/
 
 /* ----------------------------------------------------------------------- */
 
@@ -539,11 +571,12 @@ void manageMissiles()
     		cout<<"y: "<<missile.y<<endl;
     		
     		
-    		if(!missile.show()){
+    		if((!missile.show()) || (missile.rat_id != RatRat::my_id)){
     			Missile::inflights.erase(it);
     			updateView = TRUE;
     			++it;
     		}
+    	missile.create_packet();
 	}
 }
 
@@ -578,7 +611,7 @@ bool Packet::create_packet(unsigned char type){
 	switch(type){
 		case 'i':
 				packet.type = 'i';
-				packet.body[0]= RatRat::my_id;
+				packet.body[0] = RatRat::my_id;
 				cout<<"Name Array: ";
 				for (int j = 0; j < NAMESIZE; ++j)
 				{
@@ -589,6 +622,20 @@ bool Packet::create_packet(unsigned char type){
 				cout<<"First Character: "<<(char)packet.body[1]<<endl;
 				cout<<"Last Character: "<<(char)packet.body[NAMESIZE-1]<<endl;
 				break;
+		case 'p':
+				packet.type = 'p';
+				packet.body[0] = RatRat::my_id;
+				packet.body[1] = MY_X_LOC;
+				packet.body[2] = MY_Y_LOC;
+				packet.body[2] = MY_DIR;
+				cout<<"Making a packet type: "<<packet.type<<endl;
+				break;
+		case 's':
+				packet.type = 's';
+				packet.body[0] = RatRat::my_id;
+				packet.body[1] = (int)M->score().value();
+				break;
+
 
 		  //.... set other fields in the packet  that you need to set...
 	}
@@ -666,32 +713,71 @@ void processPacket (MWEvent *eventPacket)
 	Packet *pack = eventPacket->eventDetail;
     //cout<<"type: "<<pack->type<<" received"<<endl;
     int sender_id = pack->body[0];
-    if(!RatRat::match_in_list(sender_id)){
-	    switch(pack->type){
-	    	case 'i':
-	    		
-	    		//cout<<"My Rat Id: "<<M->myRatId().value()<<endl;
-	    		
-	    			
-	    			cout<<"id: "<<sender_id<<" received"<<endl;
-	    			char sender_name[2];
-	    			cout<<"name: ";
-	    			for (int j = 0; j < 2; ++j)
-			    	{	
-			    		sender_name[j] = (char)pack->body[1+j];
-			    		cout<<sender_name[j];
-			    	}
-			    	cout<<" received"<<endl;
+    	if(RatRat::my_id != sender_id){
+		    switch(pack->type){
+		    	case 'i':
+		    		
+		    		if(!RatRat::match_in_list(sender_id)){
+		    			cout<<"id: "<<sender_id<<" received"<<endl;
+		    			char sender_name[2];
+		    			cout<<"name: ";
+		    			for (int j = 0; j < 2; ++j)
+				    	{	
+				    		sender_name[j] = (char)pack->body[1+j];
+				    		cout<<sender_name[j];
+				    	}
+				    	cout<<" received"<<endl;
 
-			    	RatRat newRat(sender_id, sender_name);//,sender_name);
-			    	cout<<"newRat made\n";
-			    	
+				    	RatRat newRat(sender_id, sender_name);//,sender_name);
+				    	cout<<"newRat made\n";
+				    	
 			    		newRat.add_to_list();
-			    		UpdateScoreCard(RatIndexType(sender_id));
-			    	
-	    		
+			    		UpdateScoreCard(sender_id);
+			    		NotifyPlayer();
+				    	
+				    	updateView = TRUE;
+		    		}
+		    		break;
+		    	case 'p':
+		    		
+		    		if(RatRat::match_in_list(sender_id)){
+		    			cout<<">>>>>>>>Packet of type"<<pack->type<<" received<<<<<<<<<<<<<<\n";
+		    			int sender_xloc = (int)pack->body[1];
+		    			int sender_yloc = (int)pack->body[2];
+		    			int sender_dir = (int)pack->body[3];
+		    			RatRat this_rat = RatRat::getRat(sender_id);
+		    			this_rat.x = sender_xloc;
+		    			this_rat.y = sender_yloc;
+		    			this_rat.dir = sender_dir;
+		    			this_rat.add_to_list();
+		    			SetRatPosition(RatIndexType(0), this_rat.x, this_rat.y, this_rat.dir);
+		    		}
+		    		break;
+		    	case 'm':
+		    		if(RatRat::match_in_list(sender_id)){
+			    		cout<<"<><><><><><<>>Receiving packet OF type: "<<pack->type<<endl;
+						int sender_id = (int)pack->body[0];
+						int sender_xloc = (int)pack->body[1];
+			    		int sender_yloc = (int)pack->body[2];
+			    		int sender_dir = (int)pack->body[3];
+			    		Missile missile = Missile(Missile::missileCount+1,1,sender_xloc,sender_yloc,sender_id);
+		    			missile.rat_id = sender_id;
+						Missile::inflights.push_back(missile);
+			    	}
+					break;
+				case 's':
+					if(RatRat::match_in_list(sender_id)){
+						int sender_id = (int)pack->body[0];
+						int sender_score  = (int)pack->body[1];
+						RatRat this_rat = RatRat::getRat(sender_id);
+						this_rat.score = sender_score;
+						this_rat.add_to_list();
+						UpdateScoreCard(sender_id);
+
+					}
+					break;
+	    	}
 	    }
-    }
  
         /*DataStructureX                *packX;
 
@@ -793,7 +879,7 @@ netInit()
 	groupAddr.sin_addr.s_addr = htonl(MAZEGROUP);
 	
 
-	RatRat::my_id = getpid()%7; 
+	RatRat::my_id = getpid()%7+1; 
 	Packet::create_packet('i');
 	
 

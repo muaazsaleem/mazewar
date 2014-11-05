@@ -163,6 +163,57 @@ public:
 	Loc	x, y;
 	Direction dir;
 };
+//////////Another Class I wrote///////////////////
+class Packet{
+	public:
+		static list<Packet> packets_to_send;
+		static int packet_count;
+		unsigned char type;	//type i = Identifying
+		u_long	body[256];
+		Packet(){
+			
+		}
+		bool match_in_list(Packet packet){
+			list<Packet>::iterator it;
+  			it = Packet::packets_to_send.begin();
+			for (int i=1; i<=Packet::packet_count; ++i){
+		    	
+		    	Packet pack = *it;
+		    	
+		    	if(pack.type == packet.type){
+		    		return true;
+		    	}
+		    	it++;
+		    }
+		    return false;
+		}
+		bool add_to_list(){
+			if(match_in_list(*this)){			
+				this->remove_from_list();
+			}
+			packets_to_send.push_back(*this);
+			packet_count++;
+			return true;
+		}
+		
+		bool remove_from_list(){
+			if(match_in_list(*this)){
+				for (int i=1; i<=Packet::packet_count; ++i){
+			    	list<Packet>::iterator it;
+	  				it = Packet::packets_to_send.begin();
+			    	Packet pack = *it;
+			    	
+			    	if(pack.type == this->type){
+			    		packets_to_send.erase(it);
+			    		packet_count--;
+			    	}
+			    	
+		    	}
+			}
+			return true;
+		}
+		static bool create_packet(unsigned char type);
+};
 
 class RatRat{
 public:
@@ -174,6 +225,7 @@ public:
 	char name[2];
 	int x;
 	int y;
+	int dir;
 	int heart_beat;
 	int score;
 	RatRat(int id, char* name){
@@ -189,33 +241,49 @@ public:
 	}
 	bool match_in_list(RatRat rat){
 			
+			list<RatRat>::iterator it;
+  			it = RatRat::all_the_rats.begin();
 			for (int i=1; i<=RatRat::rat_count; ++i){
-		    	list<RatRat>::iterator it;
-  				it = RatRat::all_the_rats.begin();
+		    	
 		    	RatRat list_rat = *it;
 		    	
 		    	if(rat.id == list_rat.id){
 		    		return true;
 		    	}
+		    	it++;
 		    	
 		    }
 		    return false;
 	}
 
 	static bool match_in_list(int rat_id){
-			
+			list<RatRat>::iterator it;
+  			it = RatRat::all_the_rats.begin();
 			for (int i=1; i<=RatRat::rat_count; ++i){
-		    	list<RatRat>::iterator it;
-  				it = RatRat::all_the_rats.begin();
+		    	
 		    	RatRat list_rat = *it;
 		    	
 		    	if(rat_id == list_rat.id){
 		    		return true;
 		    	}
-		    	
+		    	it++;
 		    }
 		    return false;
+	}
+
+	static RatRat getRat(int rat_id){
+		list<RatRat>::iterator it;
+  		it = RatRat::all_the_rats.begin();
+		for (int i=1; i<=RatRat::rat_count; ++i){
+	    	RatRat list_rat = *it;
+	    	if(rat_id == list_rat.id){
+	    		return list_rat;
+	    	}
+		    it++;	
 		}
+		RatRat rat(0,"Dummy");
+		return rat;
+	}
 	bool add_to_list(){
 		if(match_in_list(*this)){			
 			this->remove_from_list();
@@ -227,16 +295,15 @@ public:
 	
 	bool remove_from_list(){
 		if(match_in_list(*this)){
+			list<RatRat>::iterator it;
+  			it = RatRat::all_the_rats.begin();
 			for (int i=1; i<=rat_count; ++i){
-		    	list<RatRat>::iterator it;
-  				it = RatRat::all_the_rats.begin();
 		    	RatRat list_rat = *it;
-		    	
 		    	if(this->id == list_rat.id){
 		    		RatRat::all_the_rats.erase(it);
 		    		rat_count--;
 		    	}
-		    	
+		    	it++;
 	    	}
 		}
 		return true;
@@ -249,6 +316,7 @@ class Missile{
 public:
 	static list<Missile> inflights;
 	static int missileCount;
+	int rat_id;
 	int id;
 	bool inflight;
 	int	x, y;
@@ -265,6 +333,31 @@ public:
 
 	static int* nextMissileXY(int ox, int oy, int dir);
 	bool show();
+	static bool match_in_list(Missile missile){
+			list<Missile>::iterator it;
+  			it = Missile::inflights.begin();
+			for (int i=1; i<=missileCount; ++i){
+		    	
+		    	Missile this_missile = *it;
+		    	missileCount--;
+		    	
+		    	if(missile.id == this_missile.id){
+		    		return true;
+		    	}
+		    	it++;
+		    }
+		    return false;
+		}
+	void create_packet(){
+		Packet packet;
+		packet.type = 'm';
+		packet.body[0] = RatRat::my_id;
+		packet.body[1] = this->x;
+		packet.body[2] = this->y;
+		packet.body[2] = this->dir;
+		cout<<"Making a packet type: "<<packet.type<<endl;
+		packet.add_to_list();
+	}
 	~Missile(){
 	}
 
@@ -372,57 +465,7 @@ extern MazewarInstance::Ptr M;
 
 extern unsigned short	ratBits[];
 /* replace this with appropriate definition of your own */
-//////////Another Class I wrote///////////////////
-class Packet{
-	public:
-		static list<Packet> packets_to_send;
-		static int packet_count;
-		unsigned char type;	//type i = Identifying
-		u_long	body[256];
-		Packet(){
-			
-		}
-		bool match_in_list(Packet packet){
-			
-			for (int i=1; i<=Packet::packet_count; ++i){
-		    	list<Packet>::iterator it;
-  				it = Packet::packets_to_send.begin();
-		    	Packet pack = *it;
-		    	
-		    	if(pack.type == packet.type){
-		    		return true;
-		    	}
-		    	
-		    }
-		    return false;
-		}
-		bool add_to_list(){
-			if(match_in_list(*this)){			
-				this->remove_from_list();
-			}
-			packets_to_send.push_back(*this);
-			packet_count++;
-			return true;
-		}
-		
-		bool remove_from_list(){
-			if(match_in_list(*this)){
-				for (int i=1; i<=Packet::packet_count; ++i){
-			    	list<Packet>::iterator it;
-	  				it = Packet::packets_to_send.begin();
-			    	Packet pack = *it;
-			    	
-			    	if(pack.type == this->type){
-			    		packets_to_send.erase(it);
-			    		packet_count--;
-			    	}
-			    	
-		    	}
-			}
-			return true;
-		}
-		static bool create_packet(unsigned char type);
-};
+
 //////////////////////////////////////////////////////
 
 
@@ -450,6 +493,7 @@ void clearPosition(RatIndexType, Loc, Loc);
 void clearSquare(Loc xClear, Loc yClear);
 void NewScoreCard(void);
 void UpdateScoreCard(RatIndexType);
+void UpdateScoreCard(int rat_id);
 void FlipBitmaps(void);
 void bitFlip(BitCell *, int size);
 void SwapBitmaps(void);
@@ -486,6 +530,7 @@ void NewPosition(MazewarInstance::Ptr M);
 void MWError(char *);
 Score GetRatScore(RatIndexType);
 char  *GetRatName(RatIndexType);
+//char *GetRatName(int rat_id);
 void ConvertIncoming(Packet *);
 void ConvertOutgoing(Packet *);
 void ratState(void);
@@ -510,8 +555,11 @@ void DeadRatCursor(void);
 void HackMazeBitmap(Loc, Loc, BitCell *);
 void DisplayRatBitmap(int, int, int, int, int, int);
 void WriteScoreString(RatIndexType);
+void WriteScoreString(int rat_id);
 void ClearScoreLine(RatIndexType);
+void ClearScoreLine(int rat_id);
 void InvertScoreLine(RatIndexType);
+void InvertScoreLine(int rat_id);
 void NotifyPlayer(void);
 void DrawString(const char*, uint32_t, uint32_t, uint32_t);
 void StopWindow(void);

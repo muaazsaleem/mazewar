@@ -584,11 +584,22 @@ NewScoreCard()
 void
 UpdateScoreCard(RatIndexType ratIndex)
 {
+	return;
 	ClearScoreLine(ratIndex);
 	if (M->rat(ratIndex).playing)
 		WriteScoreString(ratIndex);
 	if (Rats2Display[ratIndex.value()].visible == TRUE)
 		InvertScoreLine(ratIndex);
+}
+
+void
+UpdateScoreCard(int rat_id)
+{
+	ClearScoreLine(rat_id);
+	
+	WriteScoreString(rat_id);
+	//InvertScoreLine(rat_id);
+	
 }
 
 /* ----------------------------------------------------------------------- */

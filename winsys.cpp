@@ -782,6 +782,36 @@ WriteScoreString(RatIndexType rat)
 			 buf, strlen(buf));
 }
 
+void WriteScoreString(int rat_id)
+{
+	char buf[64];
+	int	leftEdge;
+
+	sprintf(buf, "%d", (unsigned int) rat_id);
+
+	XClearArea(dpy, mwWindow, SCORE_X_ORIGIN,
+		   SCORE_Y_ORIGIN +
+		   rat_id * (scoreFontInfo->max_bounds.ascent +
+			  scoreFontInfo->max_bounds.descent),
+		   SCORE_X_DIM,
+		   (scoreFontInfo->max_bounds.ascent +
+		    scoreFontInfo->max_bounds.descent),
+		   FALSE);
+	XDrawImageString(dpy, mwWindow, copyGC, SCORE_X_ORIGIN,
+			 SCORE_Y_ORIGIN +
+			 rat_id * (scoreFontInfo->max_bounds.ascent +
+				scoreFontInfo->max_bounds.descent) +
+			 scoreFontInfo->max_bounds.ascent,
+			 GetRatName(rat_id), strlen(GetRatName(rat_id)));
+	leftEdge = SCORE_X_DIM - XTextWidth(scoreFontInfo, buf, strlen(buf));
+	XDrawImageString(dpy, mwWindow, copyGC, leftEdge+SCORE_X_ORIGIN,
+			 SCORE_Y_ORIGIN +
+			 rat_id * (scoreFontInfo->max_bounds.ascent +
+				scoreFontInfo->max_bounds.descent) +
+			 scoreFontInfo->max_bounds.ascent,
+			 buf, strlen(buf));
+}
+
 /* ----------------------------------------------------------------------- */
 
 /*
@@ -793,6 +823,17 @@ ClearScoreLine(RatIndexType rat)
 	XClearArea(dpy, mwWindow, SCORE_X_ORIGIN,
 		       SCORE_Y_ORIGIN +
 		       rat.value() * (scoreFontInfo->max_bounds.ascent +
+			      scoreFontInfo->max_bounds.descent),
+		       SCORE_X_DIM,
+		       scoreFontInfo->max_bounds.ascent +
+		         scoreFontInfo->max_bounds.descent, False);
+}
+
+void ClearScoreLine(int rat_id)
+{
+	XClearArea(dpy, mwWindow, SCORE_X_ORIGIN,
+		       SCORE_Y_ORIGIN +
+		       rat_id * (scoreFontInfo->max_bounds.ascent +
 			      scoreFontInfo->max_bounds.descent),
 		       SCORE_X_DIM,
 		       scoreFontInfo->max_bounds.ascent +
@@ -811,6 +852,18 @@ InvertScoreLine(RatIndexType rat)
 		  SCORE_X_ORIGIN,
 		  SCORE_Y_ORIGIN +
 		  rat.value() * (scoreFontInfo->max_bounds.ascent +
+			 scoreFontInfo->max_bounds.descent),
+		  SCORE_X_DIM,
+		  scoreFontInfo->max_bounds.ascent +
+		  scoreFontInfo->max_bounds.descent);
+}
+
+void InvertScoreLine(int rat_id)
+{
+	XFillRectangle(dpy, mwWindow, xorGC,
+		  SCORE_X_ORIGIN,
+		  SCORE_Y_ORIGIN +
+		  rat_id * (scoreFontInfo->max_bounds.ascent +
 			 scoreFontInfo->max_bounds.descent),
 		  SCORE_X_DIM,
 		  scoreFontInfo->max_bounds.ascent +
