@@ -166,9 +166,11 @@ public:
 
 class RatRat{
 public:
-	static list<RatRat> allTheRats;
+	static list<RatRat> all_the_rats;
 	static int rat_count;
+	static int my_id;
 	int id;
+
 	char* name;
 	int x;
 	int y;
@@ -184,6 +186,45 @@ public:
     	}
     	cout<<endl;
     	rat_count++;
+	}
+	bool match_in_list(RatRat rat){
+			
+			for (int i=1; i<=RatRat::rat_count; ++i){
+		    	list<RatRat>::iterator it;
+  				it = RatRat::all_the_rats.begin();
+		    	RatRat list_rat = *it;
+		    	
+		    	if(rat.id == list_rat.id){
+		    		return true;
+		    	}
+		    	
+		    }
+		    return false;
+		}
+	bool add_to_list(){
+		if(match_in_list(*this)){			
+			this->remove_from_list();
+		}
+		all_the_rats.push_back(*this);
+		rat_count++;
+		return true;
+	}
+	
+	bool remove_from_list(){
+		if(match_in_list(*this)){
+			for (int i=1; i<=rat_count; ++i){
+		    	list<RatRat>::iterator it;
+  				it = RatRat::all_the_rats.begin();
+		    	RatRat list_rat = *it;
+		    	
+		    	if(this->id == list_rat.id){
+		    		RatRat::all_the_rats.erase(it);
+		    		rat_count--;
+		    	}
+		    	
+	    	}
+		}
+		return true;
 	}
 };
 
@@ -358,10 +399,12 @@ class Packet{
 			    	
 			    	if(pack.type == this->type){
 			    		packets_to_send.erase(it);
+			    		packet_count--;
 			    	}
 			    	
 		    	}
 			}
+			return true;
 		}
 		static bool create_packet(unsigned char type);
 };

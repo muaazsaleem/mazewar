@@ -18,8 +18,9 @@ int Missile::missileCount = 0;
 list<Missile> Missile::inflights;
 int Packet::packet_count = 0;
 list<Packet> Packet::packets_to_send;
-list<RatRat> RatRat::allTheRats;
+list<RatRat> RatRat::all_the_rats;
 int RatRat::rat_count = 0;
+int RatRat::my_id;
 
 
 /* Use this socket address to send packets to the multi-cast group. */
@@ -50,6 +51,10 @@ int main(int argc, char *argv[])
     MazeInit(argc, argv);
 
     NewPosition(M);
+
+	int my_id = getpid()%8-1;
+	cout<<"\nId: "<<my_id<<endl;
+	//M->myRatIdIs(my_id);
    // sendPacketToPlayers(RatId(1));
 
     //-----------------
@@ -573,7 +578,7 @@ bool Packet::create_packet(unsigned char type){
 	switch(type){
 		case 'i':
 				packet.type = 'i';
-				packet.body[0]= 0; 
+				packet.body[0]= RatRat::my_id;
 				cout<<"Name Array: ";
 				for (int j = 0; j < NAMESIZE; ++j)
 				{
@@ -587,7 +592,6 @@ bool Packet::create_packet(unsigned char type){
 
 		  //.... set other fields in the packet  that you need to set...
 	}
-	packets_to_send.push_back(packet);
 	packet.add_to_list();
 	return true;
 }
@@ -679,8 +683,10 @@ void processPacket (MWEvent *eventPacket)
 			    	}
 			    	cout<<" received"<<endl;
 			    	RatRat newRat(sender_id,sender_name);
-			    	RatRat::allTheRats.push_back(newRat);
-	    		
+			    	if(!newRat.match_in_list(newRat)){
+			    		newRat.add_to_list();
+			    		NewScoreCard();
+	    			}
 	    		
 	    }
     }
@@ -771,19 +777,25 @@ netInit()
 	 * Now we can try to find a game to join; if none, start one.
 	 */
 	 
-	printf("\n");
-
+	
 	/* set up some stuff strictly for this local sample */
+	
 	M->myRatIdIs(0);
 	M->scoreIs(0);
 	SetMyRatIndexType(0);
-
+	
 
 	/* Get the multi-cast address ready to use in SendData()
            calls. */
 	memcpy(&groupAddr, &nullAddr, sizeof(Sockaddr));
 	groupAddr.sin_addr.s_addr = htonl(MAZEGROUP);
+	
+
+	RatRat::my_id = getpid()%7; 
+	cout<<"Sup my id be: "<<RatRat::my_id<<endl;
 	Packet::create_packet('i');
+	
+
 
 }
 
