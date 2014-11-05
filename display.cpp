@@ -540,7 +540,7 @@ void
 clearPosition(RatIndexType ratIndex, Loc xClear, Loc yClear)
 {
 	Rat	rp;
-	register int		i;
+	register int i;
 
 	clearSquare(xClear, yClear);
 	for (i = 0; i < MAX_RATS; i++) {

@@ -687,6 +687,7 @@ void processPacket (MWEvent *eventPacket)
 			    	cout<<"newRat made\n";
 			    	
 			    		newRat.add_to_list();
+			    		UpdateScoreCard(RatIndexType(sender_id));
 			    	
 	    		
 	    }

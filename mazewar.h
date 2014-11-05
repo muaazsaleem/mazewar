@@ -175,23 +175,16 @@ public:
 	int x;
 	int y;
 	int heart_beat;
+	int score;
 	RatRat(int id, char* name){
 		this->id = id;
 		cout<<"New Rat: ";
 		cout<<"^^^Name: "<<name[0]<<name[1]<<" THIS"<<endl;
-		cout<<"$$$$THIS NAME ";
 		this->name[0] = name[0];
-		cout<<this->name[0];
 		this->name[1] = name[1];
-		cout<<this->name[1]<<" THIS"<<endl;
+		cout<<"$$$$THIS NAME "<<this->name[0]<<this->name[1]<<" THIS"<<endl;
+		this->score = 0;
 		
-		/*for (int j = 0; j < 2; ++j)
-    	{	
-    		
-    		this->name[j] = name[j];
-    		cout<<this->name[j];
-    	}
-    	cout<<endl;*/
     	
 	}
 	bool match_in_list(RatRat rat){
