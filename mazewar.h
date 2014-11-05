@@ -207,6 +207,21 @@ public:
 		    	
 		    }
 		    return false;
+	}
+
+	static bool match_in_list(int rat_id){
+			
+			for (int i=1; i<=RatRat::rat_count; ++i){
+		    	list<RatRat>::iterator it;
+  				it = RatRat::all_the_rats.begin();
+		    	RatRat list_rat = *it;
+		    	
+		    	if(rat_id == list_rat.id){
+		    		return true;
+		    	}
+		    	
+		    }
+		    return false;
 		}
 	bool add_to_list(){
 		if(match_in_list(*this)){			

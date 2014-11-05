@@ -666,7 +666,7 @@ void processPacket (MWEvent *eventPacket)
 	Packet *pack = eventPacket->eventDetail;
     //cout<<"type: "<<pack->type<<" received"<<endl;
     int sender_id = pack->body[0];
-    if(sender_id != RatRat::my_id){
+    if(!RatRat::match_in_list(sender_id)){
 	    switch(pack->type){
 	    	case 'i':
 	    		
@@ -685,10 +685,9 @@ void processPacket (MWEvent *eventPacket)
 
 			    	RatRat newRat(sender_id, sender_name);//,sender_name);
 			    	cout<<"newRat made\n";
-			    	if(!newRat.match_in_list(newRat)){
+			    	
 			    		newRat.add_to_list();
-			    		NewScoreCard();
-	    			}
+			    	
 	    		
 	    }
     }
